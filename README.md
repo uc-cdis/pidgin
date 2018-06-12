@@ -1,2 +1,2 @@
 # pidgin
-key value metadata service
+Light weighted restful api on top of peregrine
