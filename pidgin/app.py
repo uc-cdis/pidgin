@@ -7,10 +7,6 @@ import flask
 
 app = flask.Flask(__name__)
 
-#@app.route('/')
-#def root():
-#    return 'Flask says hello'
-
 #JSON GET endpoint
 #@app.route('/json', methods=['GET'])
 #def get-json-metadata():
@@ -19,16 +15,41 @@ app = flask.Flask(__name__)
 
 @app.route('/json/<path:id>') # 'path' allows the use of '/' in the id
 def get_json_metadata(id):
-    data = get_metadata(id)
-    return data
+    metadata = get_metadata_dict(id)
+    return translate_dict_to_json(metadata)
 
-def get_metadata(id):
-    #id = "dg.4503/1e4142b8-4266-49ae-a452-b64d5f803a4c"
-    #query_txt = """{ submitted_aligned_reads {
+# translate a dictionary to a json string
+def translate_dict_to_json(d):
+    str = json.dumps(d)
+    return str
 
+# create a dictionary containing the metadata for a given object_id
+def get_metadata_dict(object_id):
+    response = query_metadata(object_id) # query to peregrine
+
+    # translate the response to a dictionary
+    data = response.get_json()['data']
+    #file_type = next(iter(data.keys())) # name of first key = file type
+    #metadata = data[file_type][0] # get metadata
+    metadata = flatten_dict(data)
+    #for key, value in metadata.items():
+    #    print(key, value)
+    return metadata
+
+# flatten a dictionary, assuming there are no key duplicates
+def flatten_dict(d):
+    flat_d = {}
+    for k, v in d.items():
+        if isinstance(v, list):
+            flat_d.update(flatten_dict(v[0]))
+        else:
+            flat_d.update({k:v})
+    return flat_d
+
+# write a query and transmits it to send_query()
+def query_metadata(object_id):
     file_type = 'submitted_aligned_reads'
-
-    query_txt = '{ ' + file_type + ' (object_id: "' + id + """") {
+    query_txt = '{ ' + file_type + ' (object_id: "' + object_id + """") {
         core_metadata_collections {
           title
           description
@@ -48,14 +69,11 @@ def get_metadata(id):
         updated_datetime
       }
     }"""
-    print(query_txt)
-
+    #print(query_txt)
     data = send_query(query_txt)
-    print("Data:")
-    print(data)
-
     return data
 
+# send a query to peregrine and return the jsonified response
 def send_query(query_txt):
     query = {'query': query_txt}
 
@@ -68,14 +86,25 @@ def send_query(query_txt):
 
     output = requests.post(api_url, headers={'Authorization': auth}, json=query).text
     #print(output)
+
+    output = """{
+      "data": {
+        "aligned_reads_index": [
+          {
+            "core_metadata_collections": [
+              {
+                "contributor": "DCP",
+                "coverage": "US",
+                "creator": "Pauline",
+                "language": "en-US"
+              }
+            ],
+            "data_format": "JPG",
+            "file_name": "pauline_test.jpg"
+          }
+        ]
+      }
+    }"""
+
     data = json.loads(output)
     return flask.jsonify(data)
-
-#def get_api_auth():
-#  auth = get_auth(local_settings.ACCESS_KEY, local_settings.SECRET_KEY, 'submission')
-#  return auth
-
-#if __name__ == '__main__':
-#    print('main')
-#    args = parse_cmd_args()
-#    auth = get_api_auth()
