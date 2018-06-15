@@ -1,29 +1,28 @@
-#from cdispyutils.hmac4 import get_auth
 import json
-#import local_settings
-import requests
 
 import flask
+import requests
 
 app = flask.Flask(__name__)
 
 #JSON GET endpoint
 #@app.route('/json', methods=['GET'])
 #def get-json-metadata():
-#    data = query(query_txt, auth, api_url)
+#    data = ...
 #    return data
 
-@app.route('/json/<path:id>') # 'path' allows the use of '/' in the id
-def get_json_metadata(id):
-    metadata = get_metadata_dict(id)
+# Endpoint to get core metadata from an object_id.
+@app.route('/json/<path:object_id>') # 'path' allows the use of '/' in the id
+def get_json_metadata(object_id):
+    metadata = get_metadata_dict(object_id)
     return translate_dict_to_json(metadata)
 
-# translate a dictionary to a json string
+# Translate a dictionary to a JSON string.
 def translate_dict_to_json(d):
-    str = json.dumps(d)
-    return str
+    json_str = json.dumps(d)
+    return json_str
 
-# create a dictionary containing the metadata for a given object_id
+# Create a dictionary containing the metadata for a given object_id.
 def get_metadata_dict(object_id):
     response = query_metadata(object_id) # query to peregrine
 
@@ -36,7 +35,7 @@ def get_metadata_dict(object_id):
     #    print(key, value)
     return metadata
 
-# flatten a dictionary, assuming there are no key duplicates
+# Flatten a dictionary, assuming there are no key duplicates.
 def flatten_dict(d):
     flat_d = {}
     for k, v in d.items():
@@ -46,7 +45,7 @@ def flatten_dict(d):
             flat_d.update({k:v})
     return flat_d
 
-# write a query and transmits it to send_query()
+# Write a query and transmit it to send_query().
 def query_metadata(object_id):
     file_type = 'submitted_aligned_reads'
     query_txt = '{ ' + file_type + ' (object_id: "' + object_id + """") {
@@ -73,7 +72,7 @@ def query_metadata(object_id):
     data = send_query(query_txt)
     return data
 
-# send a query to peregrine and return the jsonified response
+# Send a query to peregrine and return the jsonified response.
 def send_query(query_txt):
     query = {'query': query_txt}
 
@@ -87,6 +86,7 @@ def send_query(query_txt):
     output = requests.post(api_url, headers={'Authorization': auth}, json=query).text
     #print(output)
 
+    # TODO: remove hardcoded output
     output = """{
       "data": {
         "aligned_reads_index": [
