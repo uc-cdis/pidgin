@@ -76,32 +76,20 @@ def get_nested_dict_values(d):
 
 # Get the type of file from the object_id.
 def get_file_type(object_id):
-    #TODO use this instead if object_id is added to node
-    #query_txt = '{ node(object_id: "' + object_id + ') { node { type } }'
-    #file_type = send_query(query_txt)
-    # reformat output
-
-    # get the list of available types from the graphql schema
-    query_txt = '{ __schema { types { name } } }'
-    all_file_types = send_query(query_txt)
-    all_file_types = get_nested_dict_values(all_file_types.get_json())
-
-    # for each type, check if it contains the file with this object_id
-    for t in all_file_types:
-        query_txt = '{ ' + t + ' (object_id: "' + object_id + '")' + ' { id } }'
-        response = send_query(query_txt)
-        response = response.get_json()
-        if response['data'] and response['data'][t]:
-            return t
-
-    return flask.jsonify({'error': 'this object_id does not exist'}), 500
+    query_txt = '{ datanode (object_id: "' + object_id + '") { type } }'
+    response = send_query(query_txt)
+    try:
+        file_type = response.get_json()['data']['datanode'][0]['type']
+    except IndexError:
+        raise Exception("Error: object_id not found")
+    return file_type
 
 
 # Write a query and transmit it to send_query().
 def request_metadata(object_id):
-    file_type = get_file_type(object_id)
 
     # get the metadata from the type of file and the object_id
+    file_type = get_file_type(object_id)
     query_txt = '{ ' + file_type + ' (object_id: "' + object_id + """") {
         core_metadata_collections {
             title description creator contributor coverage
@@ -110,17 +98,19 @@ def request_metadata(object_id):
         file_name data_format file_size object_id updated_datetime }
     }"""
     data = send_query(query_txt)
+
     return data
 
 
 # Send a query to peregrine and return the jsonified response.
 def send_query(query_txt):
-    print(query_txt)
+    # print(query_txt)
     query = {'query': query_txt}
 
     api_url = app.config.get('API_URL')
     if not api_url:
-        return flask.jsonify({'error': 'pidgin is not configured with API_URL'}), 500
+        raise Exception("Error: pidgin is not configured with API_URL")
+        # return flask.jsonify({'error': 'pidgin is not configured with API_URL'}), 500
 
     auth = flask.request.headers.get('Authorization')
 
