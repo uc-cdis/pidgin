@@ -37,9 +37,9 @@ def translate_dict_to_json(d):
 
 # Translate a dictionary to a BibTeX string.
 def translate_dict_to_bibtex(d):
-    bibtex_str = '@misc {' + d['object_id'] + ',\n'
+    bibtex_str = '@misc {' + d['object_id'] + ', '
     for k, v in d.items(): # add each pair to the BibTeX output
-        bibtex_str += k + ' = "' + str(v) + '",\n'
+        bibtex_str += k + ' = "' + str(v) + '", '
     bibtex_str += '}'
     return bibtex_str
 
@@ -95,7 +95,7 @@ def request_metadata(object_id):
             title description creator contributor coverage
             language publisher rights source subject
         }
-        file_name data_format file_size object_id updated_datetime }
+        file_name data_type data_format file_size object_id updated_datetime }
     }"""
     data = send_query(query_txt)
 
