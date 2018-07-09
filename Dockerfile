@@ -37,6 +37,7 @@ RUN ln -s /usr/bin/python3 /usr/local/bin/python \
     && mkdir /run/nginx/
 
 COPY ./deployment/uwsgi/uwsgi.ini /etc/uwsgi/uwsgi.ini
+COPY ./deployment/uwsgi/wsgi.py /var/www/pidgin/wsgi.py
 COPY ./deployment/nginx/nginx.conf /etc/nginx/
 COPY ./deployment/nginx/uwsgi.conf /etc/nginx/sites-available/
 RUN rm /etc/nginx/sites-enabled/default \
