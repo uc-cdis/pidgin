@@ -118,3 +118,8 @@ def send_query(query_txt):
 
     data = json.loads(output)
     return flask.jsonify(data)
+
+# Health check endpoint.
+@app.route('/_status', methods=['GET'])
+def health_check():
+    return 'Healthy', 200
