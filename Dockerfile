@@ -7,7 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 ENV appname=pidgin
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
     build-essential \
     curl \
     git \

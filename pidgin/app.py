@@ -25,8 +25,7 @@ def get_bibtex_metadata(object_id):
 def get_metadata_dict(object_id):
     response = request_metadata(object_id) # query to peregrine
     data = response.get_json()
-    metadata = flatten_dict(data) # translate the response to a dictionary
-    return metadata
+    return flatten_dict(data) # translate the response to a dictionary
 
 
 # Translate a dictionary to a JSON string.
@@ -45,7 +44,10 @@ def translate_dict_to_bibtex(d):
 
 
 # Flatten a dictionary, assuming there are no duplicates in the keys.
-def flatten_dict(d):
+# (This is not used anymore)
+def flatten_dict_recursive(d):
+    print(d)
+    print('----------')
     flat_d = {}
     for k, v in d.items():
         if isinstance(v, list):
@@ -60,18 +62,18 @@ def flatten_dict(d):
     return flat_d
 
 
-# Return a list of the values stored in a dict and its nested dict.
-def get_nested_dict_values(d):
-    values = []
-    for k, v in d.items():
-        if isinstance(v, list):
-            for e in v:
-                values.extend(get_nested_dict_values(e))
-        elif isinstance(v, dict):
-            values.extend(get_nested_dict_values(v))
+# Flatten a dictionary, assuming there are no duplicates in the keys.
+def flatten_dict(d):
+    flat_d = {}
+    data_type = list(d['data'].keys())[0]
+    for k, v in d['data'][data_type][0].items():
+        if k == 'core_metadata_collections':
+            # object_id is unique so the list should only contain one item
+            for k, v in v[0].items():
+                flat_d[k] = v
         else:
-            values.append(v)
-    return values
+            flat_d[k] = v
+    return flat_d
 
 
 # Get the type of file from the object_id.
@@ -97,9 +99,7 @@ def request_metadata(object_id):
         }
         file_name data_type data_format file_size object_id updated_datetime }
     }"""
-    data = send_query(query_txt)
-
-    return data
+    return send_query(query_txt)
 
 
 # Send a query to peregrine and return the jsonified response.
