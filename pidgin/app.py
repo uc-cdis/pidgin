@@ -46,8 +46,6 @@ def translate_dict_to_bibtex(d):
 # Flatten a dictionary, assuming there are no duplicates in the keys.
 # (This is not used anymore)
 def flatten_dict_recursive(d):
-    print(d)
-    print('----------')
     flat_d = {}
     for k, v in d.items():
         if isinstance(v, list):
