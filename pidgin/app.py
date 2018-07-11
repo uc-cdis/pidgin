@@ -3,11 +3,13 @@ import json
 import flask
 import requests
 
-from cdislogging import get_logger
 # from pympler import tracker
+from cdislogging import get_logger
 import tracemalloc
 
 app = flask.Flask(__name__)
+
+tracemalloc.start()
 app.snapshot = tracemalloc.take_snapshot()
 app.logger = get_logger('pidgin')
 
