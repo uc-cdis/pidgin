@@ -63,14 +63,21 @@ def flatten_dict_recursive(d):
 # Flatten a dictionary, assuming there are no duplicates in the keys.
 def flatten_dict(d):
     flat_d = {}
-    data_type = list(d['data'].keys())[0]
-    for k, v in d['data'][data_type][0].items():
-        if k == 'core_metadata_collections':
-            # object_id is unique so the list should only contain one item
-            for k, v in v[0].items():
+    print(d)
+    try:
+        data_type = list(d['data'].keys())[0]
+        for k, v in d['data'][data_type][0].items():
+            if k == 'core_metadata_collections':
+                # object_id is unique so the list should only contain one item
+                for k, v in v[0].items():
+                    flat_d[k] = v
+            else:
                 flat_d[k] = v
-        else:
-            flat_d[k] = v
+    except Exception as e:
+        error = 'Core metadata not available for this file'
+        if d['errors']:
+            error += ': ' + d['errors'][0]
+        raise Exception(error)
     return flat_d
 
 
@@ -81,7 +88,7 @@ def get_file_type(object_id):
     try:
         file_type = response.get_json()['data']['datanode'][0]['type']
     except IndexError:
-        raise Exception("Error: object_id not found")
+        raise Exception("object_id not found")
     return file_type
 
 
