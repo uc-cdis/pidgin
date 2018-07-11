@@ -3,15 +3,35 @@ import json
 import flask
 import requests
 
+from cdislogging import get_logger
+# from pympler import tracker
+import tracemalloc
 
 app = flask.Flask(__name__)
+app.snapshot = tracemalloc.take_snapshot()
+app.logger = get_logger('pidgin')
 
 
 # Endpoint to get core metadata as JSON from an object_id.
 @app.route('/json/<path:object_id>') # 'path' allows the use of '/' in the id
 def get_json_metadata(object_id):
+    # tr = tracker.SummaryTracker()
     metadata = get_metadata_dict(object_id)
-    return translate_dict_to_json(metadata)
+    a =translate_dict_to_json(metadata)
+    # tr.print_diff()
+
+    check_snapshot()
+
+    return a
+
+
+def check_snapshot():
+    snapshot_2 = tracemalloc.take_snapshot()
+    res =(snapshot_2.compare_to(flask.current_app.snapshot, 'lineno'))
+    largest = res[0]
+    if largest.size > 10000000:
+        for entry in res[:5]:
+            flask.current_app.logger.info(entry)
 
 
 # Endpoint to get core metadata as BibTeX from an object_id.
@@ -44,26 +64,29 @@ def translate_dict_to_bibtex(d):
 
 
 # Flatten a dictionary, assuming there are no duplicates in the keys.
-# (This is not used anymore)
-def flatten_dict_recursive(d):
-    flat_d = {}
-    for k, v in d.items():
-        if isinstance(v, list):
-            if v: # check if there is data to read
-                # object_id is unique so the list should only contain one item
-                flat_d.update(flatten_dict(v[0]))
-        elif isinstance(v, dict):
-            if v: # check if there is data to read
-                flat_d.update(flatten_dict(v))
-        else:
-            flat_d.update({k:v})
-    return flat_d
+# (recursive)
+def flatten_dict(d):
+    def helper(d):
+        flat_d = {}
+        for k, v in d.items():
+            if isinstance(v, list):
+                if v: # check if there is data to read
+                    # object_id is unique so the list should only contain one item
+                    flat_d.update(helper(v[0]))
+            elif isinstance(v, dict):
+                if v: # check if there is data to read
+                    flat_d.update(helper(v))
+            else:
+                flat_d.update({k:v})
+        return flat_d
+    result = helper(d)
+    return result
 
 
 # Flatten a dictionary, assuming there are no duplicates in the keys.
-def flatten_dict(d):
+# (iterative)
+def flatten_dict_iter(d):
     flat_d = {}
-    print(d)
     try:
         data_type = list(d['data'].keys())[0]
         for k, v in d['data'][data_type][0].items():
@@ -127,4 +150,5 @@ def send_query(query_txt):
 # Health check endpoint.
 @app.route('/_status', methods=['GET'])
 def health_check():
+    check_snapshot()
     return 'Healthy', 200
