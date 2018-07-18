@@ -20,6 +20,12 @@ def test_flatten_dict():
     assert output == expected
 
 def test_flatten_dict_raises_exception():
-    input = {"data": "null", "errors": ["Cannot query field \"core_metadata_collections\" on type \"data_type_test\"." ]}
+    input = {'data': {'data_type_test': [{'core_metadata_collections': [], "file_name_test": "file_name", "object_id": "object_id_test"}]}}
     with pytest.raises(Exception):
         flatten_dict(input)
+
+def test_flatten_dict_raises_exception_with_details():
+    input = {"data": "null", "errors": ["error_message_test"]}
+    with pytest.raises(Exception) as e:
+        flatten_dict(input)
+    assert 'error_message_test' in e.value.args[0]
