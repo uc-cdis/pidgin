@@ -1,2 +1,3 @@
 codacy-coverage
 pytest
+pytest-flask
