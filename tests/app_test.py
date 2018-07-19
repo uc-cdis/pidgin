@@ -1,16 +1,11 @@
 import pytest
 from pidgin.app import *
-
-def test_translate_dict_to_json():
-    input = {"key1": "value1", "key2": "value2", "key3": {"key4": "value4"}}
-    output = translate_dict_to_json(input)
-    expected = '{"key1": "value1", "key2": "value2", "key3": {"key4": "value4"}}'
-    assert output == expected
+from pidgin.errors import NoCoreMetadataException
 
 def test_translate_dict_to_bibtex():
     input = {"object_id": "object_id_test", "key2": "value2", "key3": "value3"}
     output = translate_dict_to_bibtex(input)
-    expected = '@misc {object_id_test, object_id = "object_id_test", key2 = "value2", key3 = "value3", }'
+    expected = '@misc {object_id_test, object_id = "object_id_test", key2 = "value2", key3 = "value3"}'
     assert output == expected
 
 def test_flatten_dict():
@@ -20,12 +15,18 @@ def test_flatten_dict():
     assert output == expected
 
 def test_flatten_dict_raises_exception():
+    """
+    An exception should be raised if the core_metadata_collections field does not contain any data.
+    """
     input = {'data': {'data_type_test': [{'core_metadata_collections': [], "file_name_test": "file_name", "object_id": "object_id_test"}]}}
-    with pytest.raises(Exception):
+    with pytest.raises(NoCoreMetadataException):
         flatten_dict(input)
 
 def test_flatten_dict_raises_exception_with_details():
-    input = {"data": "null", "errors": ["error_message_test"]}
-    with pytest.raises(Exception) as e:
+    """
+    An exception should be raised if a requested field was not found for this file. The details of the error should be in the exception message.
+    """
+    input = {"data": "null", "errors": ["error_details_test"]}
+    with pytest.raises(NoCoreMetadataException) as e:
         flatten_dict(input)
-    assert 'error_message_test' in e.value.args[0]
+    assert 'error_details_test' in e.value.args[0]
