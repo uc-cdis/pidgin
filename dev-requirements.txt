@@ -1,2 +1,3 @@
 codacy-coverage
-pytest
+pytest==3.2.3
+pytest-flask==0.10.0
