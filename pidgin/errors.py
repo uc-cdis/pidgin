@@ -4,6 +4,12 @@ class PidginException(Exception):
         self.code = 500
 
 
+class AuthenticationException(PidginException):
+    def __init__(self, message):
+        self.message = str(message)
+        self.code = 511
+
+
 class ObjectNotFoundException(PidginException):
     def __init__(self, message):
         self.message = str(message)
