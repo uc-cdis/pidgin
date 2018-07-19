@@ -7,7 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 ENV appname=pidgin
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
     build-essential \
     curl \
     git \
@@ -20,21 +20,24 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxml2-dev \
     libxslt1-dev \
     nginx \
-    python2.7 \
-    python-dev \
-    python-pip \
-    python-setuptools \
+    python3 \
+    python3-dev \
+    python3-pip \
+    python3-setuptools \
     sudo \
-    vim \
-    && pip install --upgrade pip==9.0.3 \
-    && pip install --upgrade setuptools \
-    && pip install uwsgi \
+    vim
+
+RUN ln -s /usr/bin/python3 /usr/local/bin/python \
+    && python -m pip install --upgrade pip \
+    && python -m pip install --upgrade setuptools \
+    && python -m pip install uwsgi \
     && mkdir /var/www/$appname \
     && mkdir -p /var/www/.cache/Python-Eggs/ \
     && chown www-data -R /var/www/.cache/Python-Eggs/ \
     && mkdir /run/nginx/
 
 COPY ./deployment/uwsgi/uwsgi.ini /etc/uwsgi/uwsgi.ini
+COPY ./deployment/uwsgi/wsgi.py /var/www/pidgin/wsgi.py
 COPY ./deployment/nginx/nginx.conf /etc/nginx/
 COPY ./deployment/nginx/uwsgi.conf /etc/nginx/sites-available/
 RUN rm /etc/nginx/sites-enabled/default \

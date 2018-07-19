@@ -115,7 +115,7 @@ def send_query(query_txt):
 
     return flask.jsonify(data)
 
-
+  
 @app.route('/_status', methods=['GET'])
 def health_check():
     return 'Healthy', 200
