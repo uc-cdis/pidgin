@@ -110,10 +110,10 @@ def send_query(query_txt):
 
     auth = flask.request.headers.get('Authorization')
     query = {'query': query_txt}
-    data = requests.post(api_url, headers={'Authorization': auth}, json=query).json()
+    response = requests.post(api_url, headers={'Authorization': auth}, json=query)
+    data = response.json()
 
-    no_auth_msg = 'No authentication is provided'
-    if no_auth_msg in str(data):
+    if response.status_code == 403:
         raise AuthenticationException(data['message'])
 
     return data

@@ -7,7 +7,7 @@ class PidginException(Exception):
 class AuthenticationException(PidginException):
     def __init__(self, message):
         self.message = str(message)
-        self.code = 511
+        self.code = 401
 
 
 class ObjectNotFoundException(PidginException):
