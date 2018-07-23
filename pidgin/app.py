@@ -8,7 +8,18 @@ from pidgin.errors import *
 app = flask.Flask(__name__)
 
 
-@app.route('/json/<path:object_id>') # 'path' allows the use of '/' in the id
+@app.route('/<path:object_id>')
+def get_core_metadata(object_id):
+    """
+    Get core metadata from an object_id.
+    """
+    accept = flask.request.headers.get('Accept')
+    if accept == "x-bibtex":
+        return get_bibtex_metadata(object_id)
+    else: # accept == "application/json" or no accept header
+        return get_json_metadata(object_id)
+
+
 def get_json_metadata(object_id):
     """
     Get core metadata as JSON from an object_id.
@@ -20,7 +31,6 @@ def get_json_metadata(object_id):
         return e.message, e.code
 
 
-@app.route('/bibtex/<path:object_id>')
 def get_bibtex_metadata(object_id):
     """
     Get core metadata as BibTeX from an object_id.
