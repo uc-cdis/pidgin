@@ -34,8 +34,7 @@ def get_metadata_dict(object_id):
     Create a dictionary containing the metadata for a given object_id.
     """
     response = request_metadata(object_id) # query to peregrine
-    data = response.get_json()
-    return flatten_dict(data) # translate the response to a dictionary
+    return flatten_dict(response) # translate the response to a dictionary
 
 
 def translate_dict_to_bibtex(d):
@@ -77,7 +76,7 @@ def get_file_type(object_id):
     query_txt = '{ datanode (object_id: "' + object_id + '") { type } }'
     response = send_query(query_txt)
     try:
-        file_type = response.get_json()['data']['datanode'][0]['type']
+        file_type = response['data']['datanode'][0]['type']
     except IndexError:
         raise ObjectNotFoundException('object_id "' + object_id + '" not found')
     return file_type
@@ -111,11 +110,15 @@ def send_query(query_txt):
 
     auth = flask.request.headers.get('Authorization')
     query = {'query': query_txt}
-    data = requests.post(api_url, headers={'Authorization': auth}, json=query).json()
+    response = requests.post(api_url, headers={'Authorization': auth}, json=query)
+    data = response.json()
 
-    return flask.jsonify(data)
+    if response.status_code == 403:
+        raise AuthenticationException(data['message'])
 
-  
+    return data
+
+
 @app.route('/_status', methods=['GET'])
 def health_check():
     return 'Healthy', 200
