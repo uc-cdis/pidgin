@@ -47,9 +47,9 @@ def get_metadata_dict(object_id):
     Create a dictionary containing the metadata for a given object_id.
     """
     response = request_metadata(object_id) # query to peregrine
-    dict = flatten_dict(response)
-    dict['citation'] = generate_ciation(dict)
-    return remove_unused_fields(dict) # translate the response to a dictionary
+    metadata = flatten_dict(response)
+    metadata['citation'] = generate_citation(metadata)
+    return remove_unused_fields(metadata) # translate the response to a dictionary
 
 
 def translate_dict_to_bibtex(d):
@@ -83,16 +83,14 @@ def flatten_dict(d):
         raise NoCoreMetadataException(error)
     return flat_d
 
-def generate_ciation(metadata_dict):
+def generate_citation(metadata_dict):
     """
     Generate a citation from the other metadata.
     """
-    creator = metadata_dict.get('creator')
-    year = metadata_dict.get('updated_datetime').split('-')[0]
-    title = metadata_dict.get('title')
-    publisher = metadata_dict.get('publisher')
-    guid = metadata_dict.get('object_id')
-    return '{}, {}: {}. {}, {}.'.format(creator, year, title, publisher, guid)
+    format_args = dict(metadata_dict)
+    format_args['year'] = format_args.pop('updated_datetime').split('-')[0]
+    format_string = '{creator}, {year}: {title}. {publisher}, {object_id}'
+    return format_string.format(**format_args)
 
 
 def remove_unused_fields(d):
