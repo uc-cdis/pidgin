@@ -35,8 +35,11 @@ def get_bibtex_metadata(object_id):
     """
     Get core metadata as BibTeX from an object_id.
     """
-    metadata = get_metadata_dict(object_id)
-    return translate_dict_to_bibtex(metadata)
+    try:
+        metadata = get_metadata_dict(object_id)
+        return translate_dict_to_bibtex(metadata)
+    except PidginException as e:
+        return e.message, e.code
 
 
 def get_metadata_dict(object_id):
@@ -44,7 +47,9 @@ def get_metadata_dict(object_id):
     Create a dictionary containing the metadata for a given object_id.
     """
     response = request_metadata(object_id) # query to peregrine
-    return flatten_dict(response) # translate the response to a dictionary
+    metadata = flatten_dict(response)
+    metadata['citation'] = generate_citation(metadata)
+    return remove_unused_fields(metadata) # translate the response to a dictionary
 
 
 def translate_dict_to_bibtex(d):
@@ -77,6 +82,24 @@ def flatten_dict(d):
             error += ': ' + d['errors'][0]
         raise NoCoreMetadataException(error)
     return flat_d
+
+def generate_citation(metadata_dict):
+    """
+    Generate a citation from the other metadata.
+    """
+    format_args = dict(metadata_dict)
+    format_args['year'] = format_args.pop('updated_datetime').split('-')[0]
+    format_string = '{creator}, {year}: {title}. {publisher}, {object_id}'
+    return format_string.format(**format_args)
+
+
+def remove_unused_fields(d):
+    """
+    Remove from the dictionary fields that should not be in the final output.
+    """
+    copy = dict(d)
+    del copy['title']
+    return copy
 
 
 def get_file_type(object_id):
