@@ -75,9 +75,10 @@ def flatten_dict(d):
         data_type = list(d['data'].keys())[0]
         for k, v in d['data'][data_type][0].items():
             if k == 'core_metadata_collections':
-                # object_id is unique so the list should only contain one item
-                for k, v in v[0].items():
-                    flat_d[k] = v
+                if v:
+                    # object_id is unique so the list should only contain one item
+                    for _k, _v in v[0].items():
+                        flat_d[_k] = _v
             else:
                 flat_d[k] = v
     except (AttributeError, IndexError):
