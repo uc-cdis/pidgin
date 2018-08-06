@@ -48,8 +48,12 @@ def get_metadata_dict(object_id):
     """
     response = request_metadata(object_id) # query to peregrine
     metadata = flatten_dict(response)
-    metadata['citation'] = generate_citation(metadata)
-    return remove_unused_fields(metadata) # translate the response to a dictionary
+
+    citation_fields = ['creator', 'updated_datetime', 'title', 'publisher', 'object_id']
+    if all(field in metadata for field in citation_fields):
+        metadata['citation'] = generate_citation(metadata)
+
+    return remove_unused_fields(metadata)
 
 
 def translate_dict_to_bibtex(d):
@@ -98,7 +102,7 @@ def remove_unused_fields(d):
     Remove from the dictionary fields that should not be in the final output.
     """
     copy = dict(d)
-    del copy['title']
+    copy.pop('title', None)
     return copy
 
 
@@ -130,7 +134,18 @@ def request_metadata(object_id):
         type file_name data_format file_size
         project_id object_id updated_datetime }} }}
         '''.format(file_type, object_id)
-    return send_query(query_txt)
+    data = send_query(query_txt)
+
+    # if this file does not have core_metadata_collections,
+    # only query the other metadata
+    if not data['data']:
+        simple_query_txt = '''{{ {} (object_id: "{}") {{
+            type file_name data_format file_size
+            project_id object_id updated_datetime }} }}
+            '''.format(file_type, object_id)
+        data = send_query(simple_query_txt)
+
+    return data
 
 
 def send_query(query_txt):
