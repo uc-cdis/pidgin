@@ -14,15 +14,20 @@ def test_flatten_dict():
     expected = {"creator": "creator_test", "description": "description_test", "file_name_test": "file_name", "object_id": "object_id_test"}
     assert output == expected
 
-def test_flatten_dict_raises_exception():
+def test_flatten_dict_without_core_metadata():
     """
     An exception should be raised if the core_metadata_collections field does not contain any data.
     """
-    input = {'data': {'data_type_test': [{'core_metadata_collections': [], "file_name_test": "file_name", "object_id": "object_id_test"}]}}
-    with pytest.raises(NoCoreMetadataException):
-        flatten_dict(input)
+    input1 = {'data': {'data_type_test': [{'core_metadata_collections': [], "file_name_test": "file_name", "object_id": "object_id_test"}]}}
+    output = flatten_dict(input1)
+    expected = {"file_name_test": "file_name", "object_id": "object_id_test"}
+    assert output == expected
 
-def test_flatten_dict_raises_exception_with_details():
+    input2 = {'data': {'data_type_test': [{"file_name_test": "file_name", "object_id": "object_id_test"}]}}
+    output = flatten_dict(input2)
+    assert output == expected
+
+def test_flatten_dict_raises_exception():
     """
     An exception should be raised if a requested field was not found for this file. The details of the error should be in the exception message.
     """
