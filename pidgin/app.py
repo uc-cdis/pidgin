@@ -124,13 +124,11 @@ def request_metadata(object_id):
     Write a query and transmit it to send_query().
     """
     file_type = get_file_type(object_id)
-    query_txt = build_query(object_id, file_type, True)
-    response = send_query(query_txt)
+    response = send_query(build_query(object_id, file_type, True))
 
     # if the file has no core metadata, get the other metadata only
     if not has_core_metadata(response, file_type):
-        simple_query_txt = build_query(object_id, file_type, False)
-        response = send_query(simple_query_txt)
+        response = send_query(build_query(object_id, file_type))
 
     return response
 
@@ -147,7 +145,7 @@ def has_core_metadata(response, file_type):
     return True
 
 
-def build_query(object_id, file_type, get_core_metadata):
+def build_query(object_id, file_type, get_core_metadata = False):
     """
     Build the query to get the core metadata.
 
