@@ -3,6 +3,7 @@ import json
 import requests
 
 from pidgin.errors import *
+from pidgin.constants import *
 
 
 app = flask.Flask(__name__)
@@ -49,8 +50,7 @@ def get_metadata_dict(object_id):
     response = request_metadata(object_id) # query to peregrine
     metadata = flatten_dict(response)
 
-    citation_fields = ['creator', 'updated_datetime', 'title', 'publisher', 'object_id']
-    if all(field in metadata for field in citation_fields):
+    if all(field in metadata for field in CITATION_FIELDS):
         metadata['citation'] = generate_citation(metadata)
 
     return remove_unused_fields(metadata)
@@ -77,8 +77,7 @@ def flatten_dict(d):
             if k == 'core_metadata_collections':
                 if v:
                     # object_id is unique so the list should only contain one item
-                    for _k, _v in v[0].items():
-                        flat_d[_k] = _v
+                    flat_d.update(v[0])
             else:
                 flat_d[k] = v
     except (AttributeError, IndexError):
@@ -125,28 +124,45 @@ def request_metadata(object_id):
     Write a query and transmit it to send_query().
     """
     file_type = get_file_type(object_id)
+    query_txt = build_query(object_id, file_type, True)
+    response = send_query(query_txt)
 
-    # get the metadata from the type of file and the object_id
-    query_txt = '''{{ {} (object_id: "{}") {{
-        core_metadata_collections {{
-            title description creator contributor coverage
-            language publisher rights source subject
-        }}
-        type file_name data_format file_size
-        project_id object_id updated_datetime }} }}
-        '''.format(file_type, object_id)
-    data = send_query(query_txt)
+    # if the file has no core metadata, get the other metadata only
+    if not has_core_metadata(response, file_type):
+        simple_query_txt = build_query(object_id, file_type, False)
+        response = send_query(simple_query_txt)
 
-    # if this file does not have core_metadata_collections,
-    # only query the other metadata
-    if not data['data']:
-        simple_query_txt = '''{{ {} (object_id: "{}") {{
-            type file_name data_format file_size
-            project_id object_id updated_datetime }} }}
-            '''.format(file_type, object_id)
-        data = send_query(simple_query_txt)
+    return response
 
-    return data
+
+def has_core_metadata(response, file_type):
+    """
+    Return True if a query response contains core metadata, False otherwise.
+    """
+    try:
+        # try to access the core_metadata
+        response['data'][file_type][0]['core_metadata_collections'][0]
+    except:
+        return False
+    return True
+
+
+def build_query(object_id, file_type, get_core_metadata):
+    """
+    Build the query to get the core metadata.
+
+    Args:
+        object_id: the file's GUID.
+        file_type: the type of file to query.
+        get_core_metadata: True if core metadata can be queried for this file, False otherwise.
+    """
+    query_txt = '{{ {} (object_id: "{}") {{ '.format(file_type, object_id)
+    if get_core_metadata:
+        fields = ' '.join(CORE_METADATA_QUERY_FIELDS)
+        query_txt += 'core_metadata_collections {{ {} }} '.format(fields)
+    fields = ' '.join(METADATA_QUERY_FIELDS)
+    query_txt += '{} }} }}'.format(fields)
+    return query_txt
 
 
 def send_query(query_txt):
