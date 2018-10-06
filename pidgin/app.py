@@ -17,7 +17,7 @@ def get_core_metadata(object_id):
     accept = flask.request.headers.get('Accept')
     if accept == "x-bibtex":
         return get_bibtex_metadata(object_id)
-    else if accept == "application/vnd.schemaorg.ld+json":
+    elif accept == "application/vnd.schemaorg.ld+json":
         return get_schemaorg_json_metadata(object_id)
     else: # accept == "application/json" or no accept header
         return get_json_metadata(object_id)
