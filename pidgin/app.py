@@ -17,9 +17,53 @@ def get_core_metadata(object_id):
     accept = flask.request.headers.get('Accept')
     if accept == "x-bibtex":
         return get_bibtex_metadata(object_id)
+    elif accept == "application/vnd.schemaorg.ld+json":
+        return get_schemaorg_json_metadata(object_id)
     else: # accept == "application/json" or no accept header
         return get_json_metadata(object_id)
 
+
+def get_schemaorg_json_metadata(object_id):
+    """
+    Get core metadata as a Schema.org JSON from an object_id.
+    """
+    try:
+        metadata = get_metadata_dict(object_id)
+        schemaorg = {
+            "@context": "http://schema.org",
+            "@type": "Dataset",
+            "@id": "https://dataguids.org/index/" + object_id,
+            "identifier": [
+                {
+                    "@type": "PropertyValue",
+                    "propertyID": "dataguid",
+                    "value": object_id
+                },
+                {
+                    "@type": "PropertyValue",
+                    "propertyID": "md5",
+                    "value": metadata["md5sum"]
+                }
+            ]
+        }
+        if "publisher" in metadata:
+            schemaorg["publisher"] = { "@type": "Organization", "name": metadata["publisher"]}
+        if "creator" in metadata:
+            schemaorg["author"] = {"name": metadata["creator"]}
+        if "description" in metadata:
+            schemaorg["description"] = metadata["description"]
+        if "type" in metadata:
+            schemaorg["additionalType"] = metadata["type"]
+        if "file_name" in metadata:
+            schemaorg["name"] = metadata["file_name"]
+        if "updated_datetime" in metadata:
+            schemaorg["datePublished"] = metadata["updated_datetime"]
+
+  #"schemaVersion": "http://datacite.org/schema/kernel-4",
+
+        return json.dumps(schemaorg) # translate dictionary to json
+    except PidginException as e:
+        return e.message, e.code
 
 def get_json_metadata(object_id):
     """
