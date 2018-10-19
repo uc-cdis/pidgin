@@ -65,6 +65,7 @@ def get_schemaorg_json_metadata(object_id):
     except PidginException as e:
         return e.message, e.code
 
+
 def get_json_metadata(object_id):
     """
     Get core metadata as JSON from an object_id.
@@ -130,6 +131,7 @@ def flatten_dict(d):
             error += ': ' + d['errors'][0]
         raise NoCoreMetadataException(error)
     return flat_d
+
 
 def generate_citation(metadata_dict):
     """
@@ -220,7 +222,7 @@ def send_query(query_txt):
     response = requests.post(api_url, headers={'Authorization': auth}, json=query)
     data = response.json()
 
-    if response.status_code == 403:
+    if response.status_code == 401 or response.status_code == 403:
         raise AuthenticationException(data['message'])
 
     return data
