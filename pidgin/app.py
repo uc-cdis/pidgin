@@ -8,11 +8,56 @@ from pidgin.constants import *
 
 app = flask.Flask(__name__)
 
+app_info = {
+    "swagger": "2.0",
+    "info": {
+        "title": "Pidgin OpenAPI Specification",
+        "description": "A core metadata API for CDIS Gen 3 data commons. Code is available on [GitHub](https://github.com/uc-cdis/pidgin).",
+        "version": "1.0",
+        "termsOfService": "http://cdis.uchicago.edu/terms/",
+        "contact": {
+            "email": "cdis@uchicago.edu"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        }
+    }
+}
+
 
 @app.route('/<path:object_id>')
 def get_core_metadata(object_id):
     """
-    Get core metadata from an object_id.
+    Get core metadata from an object_id
+    ---
+    tags:
+      - core_metadata
+    produces:
+      - application/json
+      - x-bibtex
+      - application/vnd.schemaorg.ld+json
+    parameters:
+      - name: object_id
+        in: path
+        type: string
+        required: true
+      - name: Accept
+        in: header
+        type: string
+        enum: [application/json (default), x-bibtex, application/vnd.schemaorg.ld+json]
+    responses:
+      200:
+        description: OK
+        examples:
+            application/json:
+                '{"file_name": "my-file.txt", "data_format": "TXT", "file_size": 10, "object_id": "123"}'
+            x-bibtex:
+                '@misc {123, file_name = "my-file.txt", data_format = "TXT", file_size = "10", object_id = "123"}'
+      401:
+        description: Authentication error
+      404:
+        description: No core metadata was found for this object_id
     """
     accept = flask.request.headers.get('Accept')
     if accept == "x-bibtex":
@@ -230,4 +275,16 @@ def send_query(query_txt):
 
 @app.route('/_status', methods=['GET'])
 def health_check():
+    """
+    Health check endpoint
+    ---
+    tags:
+      - system
+    responses:
+      200:
+        description: Healthy
+      default:
+        description: Unhealthy
+    """
     return 'Healthy', 200
+
