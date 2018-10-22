@@ -1,5 +1,4 @@
 import flask
-from flasgger import Swagger, Flasgger
 import json
 import requests
 
@@ -9,23 +8,22 @@ from pidgin.constants import *
 
 app = flask.Flask(__name__)
 
-template = {
-  "swagger": "2.0",
-  "info": {
-    "title": "Pidgin OpenAPI Specification",
-    "description": "A core metadata API for CDIS Gen 3 data commons. Code is available on [GitHub](https://github.com/uc-cdis/pidgin).",
-    "version": "1.0",
-    "termsOfService": "http://cdis.uchicago.edu/terms/",
-    "contact": {
-        "email": "cdis@uchicago.edu"
-    },
-    "license": {
-        "name": "Apache 2.0",
-        "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+app_info = {
+    "swagger": "2.0",
+    "info": {
+        "title": "Pidgin OpenAPI Specification",
+        "description": "A core metadata API for CDIS Gen 3 data commons. Code is available on [GitHub](https://github.com/uc-cdis/pidgin).",
+        "version": "1.0",
+        "termsOfService": "http://cdis.uchicago.edu/terms/",
+        "contact": {
+            "email": "cdis@uchicago.edu"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        }
     }
-  }
 }
-swagger = Swagger(app, template=template)
 
 
 @app.route('/<path:object_id>')
@@ -290,19 +288,3 @@ def health_check():
     """
     return 'Healthy', 200
 
-
-@app.route('/swagger')
-def write_swagger():
-    """
-    Generate the Swagger documentation and store it in a file.
-    """
-    import collections
-    import yaml
-    from yaml.representer import Representer
-    yaml.add_representer(collections.defaultdict, Representer.represent_dict)
-
-    outfile = 'openapi/swagger.yml'
-    with open(outfile, 'w') as f:
-        data = Flasgger.get_apispecs(swagger)
-        yaml.dump(data, f, default_flow_style=False)
-    return 'OK', 200
