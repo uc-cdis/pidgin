@@ -11,10 +11,10 @@ app = flask.Flask(__name__)
 
 template = {
   "swagger": "2.0",
-  "version": "1.0",
   "info": {
     "title": "Pidgin OpenAPI Specification",
     "description": "A core metadata API for CDIS Gen 3 data commons. Code is available on [GitHub](https://github.com/uc-cdis/pidgin).",
+    "version": "1.0",
     "termsOfService": "http://cdis.uchicago.edu/terms/",
     "contact": {
         "email": "cdis@uchicago.edu"
@@ -41,12 +41,13 @@ def get_core_metadata(object_id):
       - application/vnd.schemaorg.ld+json
     parameters:
       - name: object_id
-        in: string
+        in: path
+        type: string
         required: true
       - name: Accept
         in: header
-        required: no
-        enum: [application/json, x-bibtex, application/vnd.schemaorg.ld+json]
+        type: string
+        enum: [application/json (default), x-bibtex, application/vnd.schemaorg.ld+json]
     responses:
       200:
         description: OK
@@ -292,6 +293,9 @@ def health_check():
 
 @app.route('/swagger')
 def write_swagger():
+    """
+    Generate the Swagger documentation and store it in a file.
+    """
     import collections
     import yaml
     from yaml.representer import Representer

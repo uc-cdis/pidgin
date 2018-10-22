@@ -9,6 +9,7 @@ info:
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   termsOfService: http://cdis.uchicago.edu/terms/
   title: Pidgin OpenAPI Specification
+  version: '1.0'
 paths:
   /_status:
     get:
@@ -23,16 +24,17 @@ paths:
   /{object_id}:
     get:
       parameters:
-      - in: string
+      - in: path
         name: object_id
         required: true
+        type: string
       - enum:
-        - application/json
+        - application/json (default)
         - x-bibtex
         - application/vnd.schemaorg.ld+json
         in: header
         name: Accept
-        required: false
+        type: string
       produces:
       - application/json
       - x-bibtex
@@ -53,4 +55,3 @@ paths:
       tags:
       - core_metadata
 swagger: '2.0'
-version: '1.0'
