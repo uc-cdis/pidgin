@@ -1,6 +1,8 @@
 import flask
+from flasgger import Swagger, Flasgger
 import json
 import requests
+import yaml
 
 from pidgin.errors import *
 from pidgin.constants import *
@@ -8,11 +10,55 @@ from pidgin.constants import *
 
 app = flask.Flask(__name__)
 
+template = {
+  "swagger": "2.0",
+  "info": {
+    "title": "Pidgin OpenAPI Specification",
+    "description": "A core metadata API for CDIS Gen 3 data commons. Code is available on [GitHub](https://github.com/uc-cdis/pidgin).",
+    "termsOfService": "http://cdis.uchicago.edu/terms/",
+    "contact": {
+        "email": "cdis@uchicago.edu"
+    },
+    "license": {
+        "name": "Apache 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  }
+}
+swagger = Swagger(app, template=template)
+
 
 @app.route('/<path:object_id>')
 def get_core_metadata(object_id):
     """
-    Get core metadata from an object_id.
+    Get core metadata from an object_id
+    ---
+    tags:
+      - core_metadata
+    produces:
+      - application/json
+      - x-bibtex
+      - application/vnd.schemaorg.ld+json
+    parameters:
+      - name: object_id
+        in: string
+        required: true
+      - name: Accept
+        in: header
+        required: no
+        enum: [application/json, x-bibtex, application/vnd.schemaorg.ld+json]
+    responses:
+      200:
+        description: OK
+        examples:
+            application/json:
+                '{"file_name": "my-file.txt", "data_format": "TXT", "file_size": 10, "object_id": "123"}'
+            x-bibtex:
+                '@misc {123, file_name = "my-file.txt", data_format = "TXT", file_size = "10", object_id = "123"}'
+      401:
+        description: Authentication error
+      404:
+        description: No core metadata was found for this object_id
     """
     accept = flask.request.headers.get('Accept')
     if accept == "x-bibtex":
@@ -64,6 +110,7 @@ def get_schemaorg_json_metadata(object_id):
         return json.dumps(schemaorg) # translate dictionary to json
     except PidginException as e:
         return e.message, e.code
+
 
 def get_json_metadata(object_id):
     """
@@ -130,6 +177,7 @@ def flatten_dict(d):
             error += ': ' + d['errors'][0]
         raise NoCoreMetadataException(error)
     return flat_d
+
 
 def generate_citation(metadata_dict):
     """
@@ -228,4 +276,24 @@ def send_query(query_txt):
 
 @app.route('/_status', methods=['GET'])
 def health_check():
+    """
+    Health check endpoint
+    ---
+    tags:
+      - system
+    responses:
+      200:
+        description: Healthy
+      default:
+        description: Unhealthy
+    """
     return 'Healthy', 200
+
+
+@app.route('/swagger')
+def write_swagger():
+    outfile = 'openapi/swagger.yml'
+    with open(outfile, 'w') as f:
+        data = Flasgger.get_apispecs(swagger)
+        yaml.dump(data, f, default_flow_style=False)
+    return 'OK', 200

@@ -1,0 +1,59 @@
+definitions: !!python/object/apply:collections.defaultdict
+- &id001 !!python/name:builtins.dict ''
+info:
+  contact:
+    email: cdis@uchicago.edu
+  description: A core metadata API for CDIS Gen 3 data commons. Code is available
+    on [GitHub](https://github.com/uc-cdis/pidgin).
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://cdis.uchicago.edu/terms/
+  title: Pidgin OpenAPI Specification
+paths: !!python/object/apply:collections.defaultdict
+  args:
+  - *id001
+  dictitems:
+    /_status:
+      get:
+        responses:
+          '200':
+            description: Healthy
+          default:
+            description: Unhealthy
+        summary: Health check endpoint
+        tags:
+        - system
+    /{object_id}:
+      get:
+        parameters:
+        - in: string
+          name: object_id
+          required: true
+        - enum:
+          - application/json
+          - x-bibtex
+          - application/vnd.schemaorg.ld+json
+          in: header
+          name: Accept
+          required: false
+        produces:
+        - application/json
+        - x-bibtex
+        - application/vnd.schemaorg.ld+json
+        responses:
+          '200':
+            description: OK
+            examples:
+              application/json: '{"file_name": "my-file.txt", "data_format": "TXT",
+                "file_size": 10, "object_id": "123"}'
+              x-bibtex: '@misc {123, file_name = "my-file.txt", data_format = "TXT",
+                file_size = "10", object_id = "123"}'
+          '401':
+            description: Authentication error
+          '404':
+            description: No core metadata was found for this object_id
+        summary: Get core metadata from an object_id
+        tags:
+        - core_metadata
+swagger: '2.0'
