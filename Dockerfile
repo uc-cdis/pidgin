@@ -10,10 +10,6 @@ ENV appname=pidgin
 # number of uwsgi worker processes
 ENV UWSGI_CHEAPER 2
 
-# ensure www-data user exists
-RUN addgroup -g 82 -S www-data \
-    && adduser -u 82 -D -S -G www-data www-data
-
 RUN apk update \
     && apk add postgresql-libs postgresql-dev libffi-dev libressl-dev \
     && apk add linux-headers musl-dev gcc \
@@ -35,8 +31,8 @@ RUN mkdir -p /var/www/$appname \
     && mkdir /run/nginx/ \
     && ln -sf /dev/stdout /var/log/nginx/access.log \
     && ln -sf /dev/stderr /var/log/nginx/error.log \
-    && chown www-data -R /var/www/.cache/Python-Eggs/ \
-    && chown www-data /var/www/$appname
+    && chown nginx -R /var/www/.cache/Python-Eggs/ \
+    && chown nginx /var/www/$appname
 
 EXPOSE 80
 
