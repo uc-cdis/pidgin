@@ -34,7 +34,7 @@ RUN mkdir -p /var/www/$appname \
     && chown nginx -R /var/www/.cache/Python-Eggs/ \
     && chown nginx /var/www/$appname \ 
     && mkdir -m 075 /var/run/gen3 \
-    && chown root:www-data /var/run/gen3
+    && chown nginx /var/run/gen3
 
 EXPOSE 80
 
