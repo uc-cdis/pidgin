@@ -32,7 +32,9 @@ RUN mkdir -p /var/www/$appname \
     && ln -sf /dev/stdout /var/log/nginx/access.log \
     && ln -sf /dev/stderr /var/log/nginx/error.log \
     && chown nginx -R /var/www/.cache/Python-Eggs/ \
-    && chown nginx /var/www/$appname
+    && chown nginx /var/www/$appname \ 
+    && mkdir -m 075 /var/run/gen3 \
+    && chown root:www-data /var/run/gen3
 
 EXPOSE 80
 
@@ -42,4 +44,5 @@ RUN COMMIT=`git rev-parse HEAD` && echo "COMMIT=\"${COMMIT}\"" >$appname/version
 
 WORKDIR /var/www/$appname
 
-CMD /$appname/dockerrun.bash
+ENTRYPOINT [ "/bin/sh", "/$appname/dockerrun.sh" ]
+CMD []
