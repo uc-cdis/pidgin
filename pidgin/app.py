@@ -54,6 +54,8 @@ def get_core_metadata(object_id):
                 '{"file_name": "my-file.txt", "data_format": "TXT", "file_size": 10, "object_id": "123"}'
             x-bibtex:
                 '@misc {123, file_name = "my-file.txt", data_format = "TXT", file_size = "10", object_id = "123"}'
+            application/vnd.schemaorg.ld+json:
+                '{"@context": "http://schema.org", "@type": "Dataset", "@id": "https://dataguids.org/index/123", "identifier": [{"@type": "PropertyValue", "propertyID": "dataguid", "value": "123"}, {"@type": "PropertyValue", "propertyID": "md5", "value": "bc575394b5565a1d3fa20abe2b132896"}], "publisher": {"@type": "Organization", "name": "my-org"}, "author": {"name": "my-author"}, "description": "my-description", "additionalType": "submitted_aligned_reads", "name": "my-file.txt", "datePublished": "2019-01-24T19:40:02.537991+00:00"}'
       401:
         description: Authentication error
       404:
