@@ -18,8 +18,6 @@ RUN apk update \
 COPY . /$appname
 COPY ./deployment/uwsgi/uwsgi.ini /etc/uwsgi/uwsgi.ini
 COPY ./deployment/uwsgi/wsgi.py /$appname/wsgi.py
-COPY ./deployment/nginx/nginx.conf /etc/nginx/
-COPY ./deployment/nginx/uwsgi.conf /etc/nginx/conf.d/nginx.conf
 WORKDIR /$appname
 
 RUN python -m pip install --upgrade pip \
