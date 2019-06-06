@@ -2,7 +2,7 @@
 # To check running container: docker exec -it pidgin /bin/bash
 
 
-FROM quay.io/cdis/python-nginx:1.3.0
+FROM quay.io/cdis/python-nginx:chore_py3dockerrun
 
 
 ENV appname=pidgin
@@ -42,4 +42,4 @@ RUN COMMIT=`git rev-parse HEAD` && echo "COMMIT=\"${COMMIT}\"" >$appname/version
 
 WORKDIR /var/www/$appname
 
-CMD /$appname/dockerrun.bash
+CMD /dockerrun.sh
