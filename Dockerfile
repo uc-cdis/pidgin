@@ -2,7 +2,7 @@
 # To check running container: docker exec -it pidgin /bin/bash
 
 
-FROM quay.io/cdis/python-nginx:chore_py3dockerrun
+FROM quay.io/cdis/python-nginx:pybase3-1.0.0
 
 
 ENV appname=pidgin
