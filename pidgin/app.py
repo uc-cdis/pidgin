@@ -24,7 +24,7 @@ app_info = {
     },
 }
 
-logger = get_logger(__name__, log_level='info')
+logger = get_logger(__name__, log_level="info")
 
 
 @app.route("/<path:object_id>")
