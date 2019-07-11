@@ -9,10 +9,10 @@ from setuptools import setup, find_packages
 
 
 setup(
-    name='pidgin',
-    version='0.0.1',
-    description='Gen3 pidgin service',
-    url='https://github.com/uc-cdis/pidgin',
-    license='Apache',
+    name="pidgin",
+    version="0.0.1",
+    description="Gen3 pidgin service",
+    url="https://github.com/uc-cdis/pidgin",
+    license="Apache",
     packages=find_packages(),
 )
