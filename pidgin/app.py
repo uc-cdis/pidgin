@@ -293,8 +293,11 @@ def health_check():
       500:
         description: Unhealthy (Peregrine not available)
     """
+    api_health_url = app.config.get("API_HEALTH_URL")
+    if not api_health_url:
+        raise PidginException("Pidgin is not configured with API_HEALTH_URL")
     try:
-        send_query("{ program { name } }")
+        requests.get(api_health_url)
     except requests.exceptions.ConnectionError:
         logger.error("Peregrine not available; returning unhealthy")
         return "Unhealthy", 500
