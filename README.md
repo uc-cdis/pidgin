@@ -22,4 +22,4 @@ Accept: application/vnd.schemaorg.ld+json # for JSON-LD format
 
 [OpenAPI documentation available here.](http://petstore.swagger.io/?url=https://raw.githubusercontent.com/uc-cdis/pidgin/master/openapi/swagger.yml)
 
-The YAML file comtaining the OpenAPI documentation can be found in the `openapi` folder; see the README in that folder for more details.
+The YAML file containing the OpenAPI documentation can be found in the `openapi` folder; see the README in that folder for more details.

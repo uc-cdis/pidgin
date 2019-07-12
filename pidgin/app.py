@@ -1,3 +1,4 @@
+from cdislogging import get_logger
 import flask
 import json
 import requests
@@ -22,6 +23,8 @@ app_info = {
         },
     },
 }
+
+logger = get_logger(__name__, log_level="info")
 
 
 @app.route("/<path:object_id>")
@@ -59,6 +62,7 @@ def get_core_metadata(object_id):
       404:
         description: No core metadata was found for this object_id
     """
+    logger.info("Getting metadata for object_id: {}".format(object_id))
     accept = flask.request.headers.get("Accept")
     if accept == "x-bibtex":
         return get_bibtex_metadata(object_id)
@@ -286,7 +290,15 @@ def health_check():
     responses:
       200:
         description: Healthy
-      default:
-        description: Unhealthy
+      500:
+        description: Unhealthy (Peregrine not available)
     """
+    api_health_url = app.config.get("API_HEALTH_URL")
+    if not api_health_url:
+        raise PidginException("Pidgin is not configured with API_HEALTH_URL")
+    try:
+        requests.get(api_health_url)
+    except requests.exceptions.ConnectionError:
+        logger.error("Peregrine not available; returning unhealthy")
+        return "Unhealthy", 500
     return "Healthy", 200
