@@ -1,3 +1,4 @@
 cdislogging==1.0.0
 Flask==1.0.2
 requests==2.20.0
+psqlgraph==3.0.1
