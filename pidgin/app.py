@@ -272,10 +272,23 @@ def send_query(query_txt):
     auth = flask.request.headers.get("Authorization")
     query = {"query": query_txt}
     response = requests.post(api_url, headers={"Authorization": auth}, json=query)
-    data = response.json()
 
-    if response.status_code == 401 or response.status_code == 403:
-        raise AuthenticationException(data["message"])
+    if response.status_code != 200:
+        logger.error(f"Cannot get data from Peregrine. Code: {response.status_code}.")
+        logger.error(f"Query: {query_txt}")
+        try:
+            logger.error(f"Response: {response.text}")
+        except Exception:
+            pass
+        if response.status_code == 401 or response.status_code == 403:
+            raise AuthenticationException("Unauthorized")
+        raise PidginException("Cannot get data from Peregrine")
+
+    try:
+        data = response.json()
+    except ValueError:
+        logger.error(f"Cannot get JSON from Peregrine response: {response.text}")
+        data = {}
 
     return data
 
