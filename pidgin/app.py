@@ -24,7 +24,7 @@ app_info = {
     },
 }
 
-logger = get_logger(__name__, log_level="info")
+logger = get_logger(__name__, log_level="debug")
 
 
 @app.route("/<path:object_id>")
@@ -265,6 +265,7 @@ def send_query(query_txt):
     """
     Send a query to peregrine and return the jsonified response.
     """
+    logger.debug(f"Query: {query_txt}")
     api_url = app.config.get("API_URL")
     if not api_url:
         raise PidginException("Pidgin is not configured with API_URL")
@@ -274,15 +275,15 @@ def send_query(query_txt):
     response = requests.post(api_url, headers={"Authorization": auth}, json=query)
 
     if response.status_code != 200:
-        logger.error(f"Cannot get data from Peregrine. Code: {response.status_code}.")
-        logger.error(f"Query: {query_txt}")
+        logger.error(
+            f"Non-200 response from Peregrine; will still try to parse data. Status code: {response.status_code}."
+        )
         try:
             logger.error(f"Response: {response.text}")
         except Exception:
             pass
         if response.status_code == 401 or response.status_code == 403:
             raise AuthenticationException("Unauthorized")
-        raise PidginException("Cannot get data from Peregrine")
 
     try:
         data = response.json()

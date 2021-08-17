@@ -75,6 +75,9 @@ def test_flatten_dict_raises_exception():
 
 
 def test_peregrine_error(app):
+    """
+    If Peregrine (at API_URL) does not return valid data, Pidgin
+    should not crash.
+    """
     app.config["API_URL"] = "https://google.com"
-    with pytest.raises(PidginException):
-        _app.send_query("{}")
+    _app.send_query("{}")
