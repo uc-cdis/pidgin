@@ -2,15 +2,16 @@
 # To check running container: docker exec -it pidgin /bin/bash
 
 
-FROM quay.io/cdis/python-nginx:pybase3-1.0.0
+FROM quay.io/cdis/python:pybase3-2.0.0
 
 
 ENV appname=pidgin
 
-RUN apk update \
-    && apk add postgresql-libs postgresql-dev libffi-dev libressl-dev \
-    && apk add linux-headers musl-dev gcc \
-    && apk add curl bash git vim
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends\
+    curl bash git \
+    libmcrypt4 libmhash2 mcrypt \
+    && apt-get clean
 
 COPY . /$appname
 COPY ./deployment/uwsgi/uwsgi.ini /etc/uwsgi/uwsgi.ini
