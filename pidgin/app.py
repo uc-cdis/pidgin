@@ -1,6 +1,8 @@
+import html
+import json
+
 from cdislogging import get_logger
 import flask
-import json
 import requests
 
 from pidgin.errors import *
@@ -63,6 +65,7 @@ def get_core_metadata(object_id):
         description: No core metadata was found for this object_id
     """
     logger.info("Getting metadata for object_id: {}".format(object_id))
+    object_id = html.escape(object_id)
     accept = flask.request.headers.get("Accept")
     if accept == "x-bibtex":
         return get_bibtex_metadata(object_id)
