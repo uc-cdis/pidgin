@@ -2,7 +2,7 @@
 # To check running container: docker exec -it pidgin /bin/bash
 
 
-FROM quay.io/cdis/python:python3.6-buster-pybase3-3.0.2
+FROM quay.io/cdis/python:python3.9-buster-2.0.0
 
 
 ENV appname=pidgin
@@ -20,7 +20,7 @@ WORKDIR /$appname
 
 RUN python -m pip install --upgrade pip \
     && python -m pip install --upgrade setuptools \
-    && pip install -r requirements.txt --src /usr/local/lib/python3.6/site-packages/
+    && pip install -r requirements.txt --src /usr/local/lib/python3.9/site-packages/
 
 RUN mkdir -p /var/www/$appname \
     && mkdir -p /var/www/.cache/Python-Eggs/ \

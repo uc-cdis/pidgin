@@ -1,6 +1,8 @@
+import html
+import json
+
 from cdislogging import get_logger
 import flask
-import json
 import requests
 
 from pidgin.errors import *
@@ -76,6 +78,7 @@ def get_schemaorg_json_metadata(object_id):
     """
     Get core metadata as a Schema.org JSON from an object_id.
     """
+    object_id = html.escape(object_id)
     try:
         metadata = get_metadata_dict(object_id)
         schemaorg = {
