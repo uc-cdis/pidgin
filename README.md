@@ -44,12 +44,6 @@ You can learn more about these values by accessing the pidgin [README.md](https:
 
 If you would like to override any of the default values, simply copy the above values.yaml file into a local file and make any changes needed.
 
-To deploy the service independant of other services (for testing purposes), you can set the .postgres.separate value to "true". This will deploy the service with its own instance of Postgres:
-```bash
-  postgres:
-    separate: true
-```
-
 You can then supply your new values file with the following command:
 ```bash
 helm upgrade --install gen3/pidgin -f values.yaml
@@ -75,4 +69,5 @@ You can also store your images in a local registry. Kind and Minikube are popula
 - https://kind.sigs.k8s.io/docs/user/local-registry/
 - https://minikube.sigs.k8s.io/docs/handbook/registry/#enabling-insecure-registries
 
-Note: Pidgin relies on Peregrine to run. Please view the [Peregrine Helm chart](https://github.com/uc-cdis/gen3-helm/tree/master/helm/peregrine) for more information.
+Dependencies:
+Pidgin relies on Peregrine to run. Please view the [Peregrine Helm chart](https://github.com/uc-cdis/gen3-helm/tree/master/helm/peregrine) for more information.
