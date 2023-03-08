@@ -70,4 +70,4 @@ You can also store your images in a local registry. Kind and Minikube are popula
 - https://minikube.sigs.k8s.io/docs/handbook/registry/#enabling-insecure-registries
 
 Dependencies:
-Pidgin relies on Peregrine to run. Please view the [Peregrine Helm chart](https://github.com/uc-cdis/gen3-helm/tree/master/helm/peregrine) for more information.
+Pidgin relies on Peregrine to run. Please view the [Peregrine Quick Start Guide](https://github.com/uc-cdis/peregrine) for more information.
