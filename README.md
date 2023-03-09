@@ -2,6 +2,8 @@
 
 A core metadata service
 
+**DEPRECATED: The Pidgin functionality is now available in the [Peregrine service](https://github.com/uc-cdis/peregrine), versions 3.2.0/2023.04 or newer. It is now unnecessary to deploy the Pidgin service.**
+
 ## Concept
 
 Pidgin is a lightweight API on top of [Peregrine](https://github.com/uc-cdis/peregrine). It takes a file's GUID as input, queries Peregrine for information about this file and returns an abstract of the file to the user.
