@@ -1,6 +1,6 @@
 # Pidgin
 
-A core metadata service
+A core metadata service.
 
 **DEPRECATED: The Pidgin functionality is now available in the [Peregrine service](https://github.com/uc-cdis/peregrine), versions 3.2.0/2023.04 or newer. It is now unnecessary to deploy the Pidgin service.**
 
