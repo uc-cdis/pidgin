@@ -4,3 +4,4 @@ pytest-cov>=2.5.1
 pytest-flask>=0.15.1
 flasgger>=0.9.1
 PyYAML>=5.4
+werkzeug>=3.0.1 # not directly required, pinned by Snyk to avoid a vulnerability
